@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.ArrayList
+import java.util.Locale
 
 class MainActivity3 : AppCompatActivity(), RecognitionListener {
     private var returnedText: TextView? = null
@@ -69,7 +70,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizerIntent!!.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-            "en"
+            Locale.US.toString()
         )
         recognizerIntent!!.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,

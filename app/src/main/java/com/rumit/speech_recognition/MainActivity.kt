@@ -1,4 +1,4 @@
-package com.rums.android_geocode
+package com.rumit.speech_recognition
 
 import android.content.Context
 import android.content.Intent
@@ -12,7 +12,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.rums.android_geocode.utility.errorLog
+import com.rumit.speech_recognition.utility.errorLog
 
 class MainActivity : AppCompatActivity() {
 
@@ -62,7 +62,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun btn1Clicked() {
         val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
+            )
             putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, mContext.packageName)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

@@ -1,4 +1,4 @@
-package com.rums.android_geocode
+package com.rumit.speech_recognition
 
 import android.Manifest
 import android.content.Intent
@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.util.ArrayList
 import java.util.Locale
 
 class MainActivity3 : AppCompatActivity(), RecognitionListener {

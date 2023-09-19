@@ -1,4 +1,4 @@
-package com.rums.android_geocode
+package com.rumit.speech_recognition
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,7 +14,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.rums.android_geocode.R
 import java.util.Locale
 
 class MainActivity2 : AppCompatActivity() {

@@ -1,4 +1,4 @@
-package com.rums.android_geocode
+package com.rumit.speech_recognition
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

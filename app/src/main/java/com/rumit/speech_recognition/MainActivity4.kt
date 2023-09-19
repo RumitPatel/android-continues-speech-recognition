@@ -1,4 +1,4 @@
-package com.rums.android_geocode
+package com.rumit.speech_recognition
 
 import android.content.Intent
 import android.content.pm.PackageManager

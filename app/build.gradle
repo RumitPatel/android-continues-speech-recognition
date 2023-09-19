@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.rums.android_geocode'
+    namespace 'com.rumit.speech_recognition'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.rums.android_geocode"
+        applicationId "com.rumit.speech_recognition"
         minSdk 26
         targetSdk 34
         versionCode 1

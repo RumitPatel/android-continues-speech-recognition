@@ -25,7 +25,6 @@ import com.rumit.speech_recognition.utility.LOG_TAG
 import com.rumit.speech_recognition.utility.PERMISSIONS_REQUEST_RECORD_AUDIO
 import com.rumit.speech_recognition.utility.RESULTS_LIMIT
 import com.rumit.speech_recognition.utility.getErrorText
-import java.util.Locale
 import java.util.concurrent.Executors
 
 class MainActivity3 : AppCompatActivity(), RecognitionListener {
@@ -71,7 +70,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
     }
 
     private fun setRecogniserIntent() {
-        val language = Locale.US.toString()
+        val language = /*Locale.US.toString()*/ "hi"
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizerIntent!!.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
@@ -87,37 +86,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
         )
         recognizerIntent!!.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, RESULTS_LIMIT)
 
-        //Optional
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            speech?.checkRecognitionSupport(recognizerIntent!!,
-                Executors.newSingleThreadExecutor(),
-                object : RecognitionSupportCallback {
-                    override fun onSupportResult(recognitionSupport: RecognitionSupport) {
-                        Log.e(
-                            LOG_TAG,
-                            "recognitionSupport.supportedOnDeviceLanguages = ${recognitionSupport.supportedOnDeviceLanguages}"
-                        )
-                        Log.e(
-                            LOG_TAG,
-                            "recognitionSupport.installedOnDeviceLanguages = ${recognitionSupport.installedOnDeviceLanguages}"
-                        )
-                        Log.e(
-                            LOG_TAG,
-                            "recognitionSupport.onlineLanguages = ${recognitionSupport.onlineLanguages}"
-                        )
-                        Log.e(LOG_TAG, "onSupportResult")
-
-                    }
-
-                    override fun onError(error: Int) {
-                        Toast.makeText(
-                            this@MainActivity3,
-                            "Speech recognition service NOT available",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                })
-        }
+//        checkForLanguagesAPI33Plus() //Optional causes crash
     }
 
     override fun onRequestPermissionsResult(
@@ -237,5 +206,43 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
                 }
             }
         }, null, Activity.RESULT_OK, null, null)
+    }
+
+    private fun checkForLanguagesAPI33Plus() {
+        //Optional
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                speech?.checkRecognitionSupport(recognizerIntent!!,
+                    Executors.newSingleThreadExecutor(),
+                    object : RecognitionSupportCallback {
+                        override fun onSupportResult(recognitionSupport: RecognitionSupport) {
+                            Log.e(
+                                LOG_TAG,
+                                "recognitionSupport.supportedOnDeviceLanguages = ${recognitionSupport.supportedOnDeviceLanguages}"
+                            )
+                            Log.e(
+                                LOG_TAG,
+                                "recognitionSupport.installedOnDeviceLanguages = ${recognitionSupport.installedOnDeviceLanguages}"
+                            )
+                            Log.e(
+                                LOG_TAG,
+                                "recognitionSupport.onlineLanguages = ${recognitionSupport.onlineLanguages}"
+                            )
+                            Log.e(LOG_TAG, "onSupportResult")
+
+                        }
+
+                        override fun onError(error: Int) {
+                            Toast.makeText(
+                                this@MainActivity3,
+                                "Speech recognition service NOT available",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    })
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 }

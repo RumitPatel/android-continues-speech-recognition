@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">android-voice-recognition</string>
+    <string name="detected_speech">detected speech</string>
+    <string name="listening">listening</string>
+</resources>

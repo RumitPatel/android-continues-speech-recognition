@@ -35,6 +35,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMain3Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         resetSpeechRecognizer()
 

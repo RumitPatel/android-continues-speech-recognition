@@ -15,12 +15,11 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.rumit.speech_recognition.databinding.ActivityMain3Binding
 import com.rumit.speech_recognition.utility.LOG_TAG
 import com.rumit.speech_recognition.utility.PERMISSIONS_REQUEST_RECORD_AUDIO
 import com.rumit.speech_recognition.utility.RESULTS_LIMIT
@@ -28,24 +27,17 @@ import com.rumit.speech_recognition.utility.getErrorText
 import java.util.concurrent.Executors
 
 class MainActivity3 : AppCompatActivity(), RecognitionListener {
-    private var returnedText: TextView? = null
-    private var returnedError: TextView? = null
-    private var progressBar: ProgressBar? = null
+    private lateinit var binding: ActivityMain3Binding
+
     private var speech: SpeechRecognizer? = null
     private var recognizerIntent: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main3)
-
-        // UI initialisation
-        returnedText = findViewById(R.id.textView1)
-        returnedError = findViewById(R.id.tvError)
-        progressBar = findViewById(R.id.progressBar1)
+        binding = ActivityMain3Binding.inflate(layoutInflater)
 
         resetSpeechRecognizer()
 
-        // check for permission
         val permissionCheck =
             ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECORD_AUDIO)
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -106,7 +98,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
     private fun startListening() {
         speech!!.startListening(recognizerIntent)
-        progressBar!!.visibility = View.VISIBLE
+        binding.progressBar1.visibility = View.VISIBLE
     }
 
     public override fun onResume() {
@@ -132,8 +124,8 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
     override fun onBeginningOfSpeech() {
         Log.i(LOG_TAG, "onBeginningOfSpeech")
-        progressBar!!.isIndeterminate = false
-        progressBar!!.max = 10
+        binding.progressBar1.isIndeterminate = false
+        binding.progressBar1.max = 10
     }
 
     override fun onBufferReceived(buffer: ByteArray) {
@@ -142,7 +134,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
     override fun onEndOfSpeech() {
         Log.i(LOG_TAG, "onEndOfSpeech")
-        progressBar!!.isIndeterminate = true
+        binding.progressBar1.isIndeterminate = true
         speech!!.stopListening()
     }
 
@@ -155,14 +147,14 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
      $result
      
      """.trimIndent()
-        returnedText!!.text = text
+        binding.textView1.text = text
         startListening()
     }
 
     override fun onError(errorCode: Int) {
         val errorMessage = getErrorText(errorCode)
         Log.i(LOG_TAG, "FAILED $errorMessage")
-        returnedError!!.text = errorMessage
+        binding.tvError.text = errorMessage
 
         // rest voice recogniser
         resetSpeechRecognizer()
@@ -183,7 +175,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
     override fun onRmsChanged(rmsdB: Float) {
         //Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
-        progressBar!!.progress = rmsdB.toInt()
+        binding.progressBar1.progress = rmsdB.toInt()
     }
 
     private fun checkSupportedLanguage() {// Optional

@@ -5,6 +5,27 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btnStartListen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Listening" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/spinner1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </TableRow>
 
     <ProgressBar
         android:id="@+id/progressBar1"
@@ -22,12 +43,14 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="47dp" />
+        android:layout_marginTop="50dp"
+        tools:text="Output will be displayed here" />
 
     <TextView
         android:id="@+id/tvError"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp" />
+        android:layout_marginTop="50dp"
+        tools:text="Error will be displayed here" />
 
 </LinearLayout>

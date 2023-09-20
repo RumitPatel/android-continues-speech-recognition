@@ -1,6 +1,7 @@
 package com.rumit.speech_recognition
 
 import android.Manifest
+import android.R
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -14,6 +15,8 @@ import android.speech.RecognitionSupportCallback
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -24,16 +27,22 @@ import com.rumit.speech_recognition.utility.PERMISSIONS_REQUEST_RECORD_AUDIO
 import com.rumit.speech_recognition.utility.RESULTS_LIMIT
 import com.rumit.speech_recognition.utility.errorLog
 import com.rumit.speech_recognition.utility.getErrorText
+import java.util.Locale
 import java.util.concurrent.Executors
 
+
 class MainActivity3 : AppCompatActivity(), RecognitionListener {
+    private lateinit var mContext: Context
     private lateinit var binding: ActivityMain3Binding
 
     private var speech: SpeechRecognizer? = null
     private var recognizerIntent: Intent? = null
 
+    private var selectedLanguage = "en-IN"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mContext = this
         binding = ActivityMain3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -41,6 +50,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
         checkPermissions()
         resetSpeechRecognizer()
         setRecogniserIntent()
+        prepareSpinner()
 
         checkSupportedLanguage()
     }
@@ -56,7 +66,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
             ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECORD_AUDIO)
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
-                this,
+                this@MainActivity3,
                 arrayOf(Manifest.permission.RECORD_AUDIO),
                 PERMISSIONS_REQUEST_RECORD_AUDIO
             )
@@ -66,13 +76,14 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
     private fun resetSpeechRecognizer() {
         if (speech != null) speech!!.destroy()
-        speech = SpeechRecognizer.createSpeechRecognizer(this)
-        errorLog("isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(this))
-        if (SpeechRecognizer.isRecognitionAvailable(this)) speech!!.setRecognitionListener(this) else finish()
+        speech = SpeechRecognizer.createSpeechRecognizer(mContext)
+        errorLog("isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(mContext))
+        if (SpeechRecognizer.isRecognitionAvailable(mContext)) speech!!.setRecognitionListener(this) else finish()
     }
 
     private fun setRecogniserIntent() {
-        val language = /*Locale.US.toString()*/ "hi"
+//        val language = /*Locale.US.toString()*/ /*"hi"*/ "kn-IN"
+        val language = selectedLanguage
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizerIntent!!.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
@@ -100,7 +111,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startListening()
             } else {
-                Toast.makeText(this@MainActivity3, "Permission Denied!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(mContext, "Permission Denied!", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
@@ -196,21 +207,37 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
     private fun checkSupportedLanguage() {// Optional
         val intent = Intent(RecognizerIntent.ACTION_GET_LANGUAGE_DETAILS)
+        intent.setPackage("com.google.android.googlequicksearchbox")
 
-        sendOrderedBroadcast(intent, null, object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (resultCode == Activity.RESULT_OK) {
-                    val results = getResultExtras(true)
+        sendOrderedBroadcast(
+            intent,
+            null,
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    if (resultCode == Activity.RESULT_OK) {
+                        val results = getResultExtras(true)
 
-                    // Supported languages
-                    val prefLang: String? =
-                        results.getString(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE)
-                    val allLangs: ArrayList<CharSequence>? =
-                        results.getCharSequenceArrayList(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES)
-                    errorLog("prefLang = $prefLang allLangs.toString() = ${allLangs.toString()}")
+                        // Supported languages
+                        if (results.containsKey(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE)) {
+                            val languagePreference =
+                                results.getString(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE);
+                            errorLog("languagePreference = $languagePreference")
+                        }
+                        if (results.containsKey(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES)) {
+                            val supportedLanguages =
+                                results.getStringArrayList(
+                                    RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES
+                                );
+                            errorLog("supportedLanguages = $supportedLanguages")
+                        }
+                    }
                 }
-            }
-        }, null, Activity.RESULT_OK, null, null)
+            },
+            null,
+            Activity.RESULT_OK,
+            null,
+            null
+        )
     }
 
     private fun checkForLanguagesAPI33Plus() {
@@ -236,7 +263,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
 
                         override fun onError(error: Int) {
                             Toast.makeText(
-                                this@MainActivity3,
+                                mContext,
                                 "Speech recognition service NOT available",
                                 Toast.LENGTH_SHORT
                             ).show()
@@ -246,5 +273,46 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun prepareSpinner() {
+        val availableLocales = Locale.getAvailableLocales()
+
+        val adapterLocalization: ArrayAdapter<Any?> = ArrayAdapter<Any?>(
+            mContext,
+            R.layout.simple_spinner_item,
+            availableLocales
+        )
+        adapterLocalization.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+        binding.spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selectedLanguage = availableLocales[position].toString()
+
+                resetSpeechRecognizer()
+                setRecogniserIntent()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                TODO("Not yet implemented")
+            }
+        }
+
+        binding.spinner1.adapter = adapterLocalization
+
+        // Set "en" as selected language
+        for (i in availableLocales.indices) {
+            val locale = availableLocales[i]
+            if (locale.toString().equals("en", true)) {
+                binding.spinner1.setSelection(i)
+                break
+            }
+        }
+
+
     }
 }

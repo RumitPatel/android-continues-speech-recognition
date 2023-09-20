@@ -3,13 +3,14 @@ package com.rumit.speech_recognition.utility
 import android.speech.SpeechRecognizer
 import android.util.Log
 
-const val TAG = "rum==##"
 const val LOG_TAG = "rum==##"
 const val PERMISSIONS_REQUEST_RECORD_AUDIO = 100
 const val RESULTS_LIMIT = 1
 
+const val IS_CONTINUES_LISTEN = false
+
 fun errorLog(msg: String?) {
-    Log.e(TAG, msg!!)
+    Log.e(LOG_TAG, msg!!)
 }
 
 fun getErrorText(errorCode: Int): String {

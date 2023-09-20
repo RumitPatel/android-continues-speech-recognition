@@ -13,16 +13,16 @@ import android.speech.RecognitionSupport
 import android.speech.RecognitionSupportCallback
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.rumit.speech_recognition.databinding.ActivityMain3Binding
-import com.rumit.speech_recognition.utility.LOG_TAG
+import com.rumit.speech_recognition.utility.IS_CONTINUES_LISTEN
 import com.rumit.speech_recognition.utility.PERMISSIONS_REQUEST_RECORD_AUDIO
 import com.rumit.speech_recognition.utility.RESULTS_LIMIT
+import com.rumit.speech_recognition.utility.errorLog
 import com.rumit.speech_recognition.utility.getErrorText
 import java.util.concurrent.Executors
 
@@ -37,8 +37,21 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
         binding = ActivityMain3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setListeners()
+        checkPermissions()
         resetSpeechRecognizer()
+        setRecogniserIntent()
 
+        checkSupportedLanguage()
+    }
+
+    private fun setListeners() {
+        binding.btnStartListen.setOnClickListener {
+            startListening()
+        }
+    }
+
+    private fun checkPermissions() {
         val permissionCheck =
             ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECORD_AUDIO)
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -49,16 +62,12 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
             )
             return
         }
-        setRecogniserIntent()
-        startListening()
-
-        checkSupportedLanguage()
     }
 
     private fun resetSpeechRecognizer() {
         if (speech != null) speech!!.destroy()
         speech = SpeechRecognizer.createSpeechRecognizer(this)
-        Log.i(LOG_TAG, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(this))
+        errorLog("isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(this))
         if (SpeechRecognizer.isRecognitionAvailable(this)) speech!!.setRecognitionListener(this) else finish()
     }
 
@@ -103,20 +112,22 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
     }
 
     public override fun onResume() {
-        Log.i(LOG_TAG, "resume")
+        errorLog("resume")
         super.onResume()
         resetSpeechRecognizer()
-        startListening()
+        if (IS_CONTINUES_LISTEN) {
+            startListening()
+        }
     }
 
     override fun onPause() {
-        Log.i(LOG_TAG, "pause")
+        errorLog("pause")
         super.onPause()
         speech!!.stopListening()
     }
 
     override fun onStop() {
-        Log.i(LOG_TAG, "stop")
+        errorLog("stop")
         super.onStop()
         if (speech != null) {
             speech!!.destroy()
@@ -124,23 +135,23 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
     }
 
     override fun onBeginningOfSpeech() {
-        Log.i(LOG_TAG, "onBeginningOfSpeech")
+        errorLog("onBeginningOfSpeech")
         binding.progressBar1.isIndeterminate = false
         binding.progressBar1.max = 10
     }
 
     override fun onBufferReceived(buffer: ByteArray) {
-        Log.i(LOG_TAG, "onBufferReceived: $buffer")
+        errorLog("onBufferReceived: $buffer")
     }
 
     override fun onEndOfSpeech() {
-        Log.i(LOG_TAG, "onEndOfSpeech")
+        errorLog("onEndOfSpeech")
         binding.progressBar1.isIndeterminate = true
         speech!!.stopListening()
     }
 
     override fun onResults(results: Bundle) {
-        Log.i(LOG_TAG, "onResults")
+        errorLog("onResults")
         val matches: ArrayList<String>? = results
             .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         var text = ""
@@ -149,12 +160,16 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
      
      """.trimIndent()
         binding.textView1.text = text
-        startListening()
+        if (IS_CONTINUES_LISTEN) {
+            startListening()
+        } else {
+            binding.progressBar1.visibility = View.GONE
+        }
     }
 
     override fun onError(errorCode: Int) {
         val errorMessage = getErrorText(errorCode)
-        Log.i(LOG_TAG, "FAILED $errorMessage")
+        errorLog("FAILED $errorMessage")
         binding.tvError.text = errorMessage
 
         // rest voice recogniser
@@ -163,19 +178,19 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
     }
 
     override fun onEvent(arg0: Int, arg1: Bundle) {
-        Log.i(LOG_TAG, "onEvent")
+        errorLog("onEvent")
     }
 
     override fun onPartialResults(arg0: Bundle) {
-        Log.i(LOG_TAG, "onPartialResults")
+        errorLog("onPartialResults")
     }
 
     override fun onReadyForSpeech(arg0: Bundle) {
-        Log.i(LOG_TAG, "onReadyForSpeech")
+        errorLog("onReadyForSpeech")
     }
 
     override fun onRmsChanged(rmsdB: Float) {
-        //Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
+        //errorLog( "onRmsChanged: " + rmsdB);
         binding.progressBar1.progress = rmsdB.toInt()
     }
 
@@ -192,10 +207,7 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
                         results.getString(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE)
                     val allLangs: ArrayList<CharSequence>? =
                         results.getCharSequenceArrayList(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES)
-                    Log.e(
-                        LOG_TAG,
-                        "prefLang = $prefLang allLangs.toString() = ${allLangs.toString()}"
-                    )
+                    errorLog("prefLang = $prefLang allLangs.toString() = ${allLangs.toString()}")
                 }
             }
         }, null, Activity.RESULT_OK, null, null)
@@ -209,19 +221,16 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
                     Executors.newSingleThreadExecutor(),
                     object : RecognitionSupportCallback {
                         override fun onSupportResult(recognitionSupport: RecognitionSupport) {
-                            Log.e(
-                                LOG_TAG,
+                            errorLog(
                                 "recognitionSupport.supportedOnDeviceLanguages = ${recognitionSupport.supportedOnDeviceLanguages}"
                             )
-                            Log.e(
-                                LOG_TAG,
+                            errorLog(
                                 "recognitionSupport.installedOnDeviceLanguages = ${recognitionSupport.installedOnDeviceLanguages}"
                             )
-                            Log.e(
-                                LOG_TAG,
+                            errorLog(
                                 "recognitionSupport.onlineLanguages = ${recognitionSupport.onlineLanguages}"
                             )
-                            Log.e(LOG_TAG, "onSupportResult")
+                            errorLog("onSupportResult")
 
                         }
 

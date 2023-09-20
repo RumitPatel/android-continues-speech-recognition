@@ -276,7 +276,8 @@ class MainActivity3 : AppCompatActivity(), RecognitionListener {
     }
 
     private fun prepareSpinner() {
-        val availableLocales = Locale.getAvailableLocales()
+        val availableLocales =
+            Locale.getAvailableLocales() //Alternatively you can check https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
 
         val adapterLocalization: ArrayAdapter<Any?> = ArrayAdapter<Any?>(
             mContext,
